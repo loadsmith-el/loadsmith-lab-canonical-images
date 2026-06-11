@@ -57,12 +57,19 @@ ghcr.io/loadsmith-el/<name>:sha-<shortsha>
 ghcr.io/loadsmith-el/<name>:<version>
 ```
 
-The `<version>` tag is the free-text contents of the image's
-`images/<name>/VERSION` file — the image declares it, the CI doesn't interpret
-it. For service images it reflects the baked-in canonical dataset, e.g.
-`postgres-15` ships `data-v1` (matching the Dockerfile's `DATA_REF`). A
-different kind of image (e.g. the loadsmith engine, later) would ship its own
-scheme like `v0.3.0`.
+The `<version>` tag is resolved per image, in precedence order:
+
+1. **An explicit `images/<name>/VERSION` file** (override), for images that
+   version on their own axis — e.g. a future loadsmith engine image shipping
+   `v0.3.0`.
+2. **Else derived from the Dockerfile's `ARG DATA_REF`** — service images
+   publish `:data-<ref>` reflecting the baked-in canonical dataset revision
+   (e.g. `postgres-15` → `:data-v1`). The dataset revision lives in
+   `loadsmith-lab-canonical-data` (its `VERSION` file + git tag); `DATA_REF` is
+   the single place this image pins it, so there's nothing to hand-maintain
+   here. The image also carries it as an OCI label
+   (`org.opencontainers.image.version`), so a pulled image self-reports its
+   data revision.
 
 Only the images whose directory changed are rebuilt — unrelated images aren't
 republished. To force a rebuild of everything (e.g. after bumping the

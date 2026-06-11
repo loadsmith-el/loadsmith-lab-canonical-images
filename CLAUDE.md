@@ -15,16 +15,20 @@ guess at "why" — go read it.
   [loadsmith-lab](../loadsmith-lab) — no engine code lives here. The runner
   that resolves/builds these images lives in `../loadsmith-lab` (see
   [`image.rs`](../loadsmith-lab/crates/loadsmith-lab-runner/src/image.rs)).
-- **Update the manifest.** Adding an image means adding `images/<name>/`, an
-  entry under `[images]` in [`loadsmith-lab.toml`](loadsmith-lab.toml)
-  (`loadsmith-lab list`/`build` and `origin show images` read the manifest, not
-  the filesystem), *and* an `images/<name>/VERSION` file.
-- **Every image declares a `VERSION`.** `images/<name>/VERSION` holds a
-  free-text version string (prefix included) that the CI publishes verbatim as
-  a GHCR tag — see [README.md § CI & Registry](README.md#ci--registry). The CI
-  doesn't interpret it. For a service image, make it reflect the baked-in
-  canonical dataset, i.e. `data-<DATA_REF>` (e.g. `data-v1`) — bump it in the
-  same change that bumps the Dockerfile's `DATA_REF`.
+- **Update the manifest.** Adding an image means adding `images/<name>/` *and*
+  an entry under `[images]` in [`loadsmith-lab.toml`](loadsmith-lab.toml) —
+  `loadsmith-lab list`/`build` and `origin show images` read the manifest, not
+  the filesystem.
+- **Version tag.** The CI publishes a `:<version>` tag resolved per image (see
+  [README.md § CI & Registry](README.md#ci--registry)): for a **service image**
+  it's *derived* from the Dockerfile's `ARG DATA_REF` (→ `:data-<ref>`), so you
+  don't hand-write it anywhere — just pin `DATA_REF`. `DATA_REF` is this image's
+  independent choice of canonical-data revision (decoupled from the service
+  base version); it must match a `loadsmith-lab-canonical-data` tag/`VERSION`.
+  Only an image that versions on a *different* axis (e.g. the future engine
+  image) ships an explicit `images/<name>/VERSION` file to override the
+  derivation. Stamp the revision as `LABEL org.opencontainers.image.version` in
+  the Dockerfile (mirror `postgres-15`).
 - **Multi-arch.** Loadsmith images are published for both `linux/amd64` and
   `linux/arm64` (AWS Graviton support). Base every image on something that
   publishes official `arm64` variants too (most do — `postgres`, `debian`,

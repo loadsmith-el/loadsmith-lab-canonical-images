@@ -77,13 +77,23 @@ jobs:
         run: |
           repo="ghcr.io/loadsmith-el/${{ matrix.image }}"
           sha_short="${GITHUB_SHA::7}"
+          dir="images/${{ matrix.image }}"
 
-          # Each image declares its own version string (free text, prefix
-          # included) in images/<name>/VERSION — e.g. postgres-15 ships
-          # "data-v1" (the baked-in canonical-data ref), a future engine image
-          # would ship "v0.3.0". The CI doesn't interpret it, just tags with it.
-          version=$(cat "images/${{ matrix.image }}/VERSION" 2>/dev/null \
-            | head -n1 | tr -d '[:space:]' || true)
+          # Resolve the version tag, in precedence order:
+          #   1. An explicit VERSION file (override) — for images that version
+          #      on their own axis, e.g. a future engine image shipping v0.3.0.
+          #   2. Else derive from the Dockerfile's global `ARG DATA_REF=<ref>`:
+          #      service images publish `:data-<ref>` reflecting the baked-in
+          #      canonical-data revision (the single source of truth; no
+          #      hand-maintained duplicate). The re-declared `ARG DATA_REF`
+          #      (no `=`) inside a stage doesn't match the grep.
+          if [ -f "${dir}/VERSION" ]; then
+            version=$(head -n1 "${dir}/VERSION" | tr -d '[:space:]')
+          else
+            data_ref=$(grep -oP '^ARG DATA_REF=\K\S+' "${dir}/Dockerfile" \
+              | head -n1 || true)
+            [ -n "$data_ref" ] && version="data-${data_ref}" || version=""
+          fi
 
           {
             echo "tags<<EOF"
