@@ -72,11 +72,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Compute build vars
+      - name: Compute tags
         id: vars
         run: |
-          echo "sha_short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
-          echo "timestamp=$(date -u +%Y%m%d-%H%M%S)" >> "$GITHUB_OUTPUT"
+          repo="ghcr.io/loadsmith-el/${{ matrix.image }}"
+          sha_short="${GITHUB_SHA::7}"
+
+          # Each image declares its own version string (free text, prefix
+          # included) in images/<name>/VERSION — e.g. postgres-15 ships
+          # "data-v1" (the baked-in canonical-data ref), a future engine image
+          # would ship "v0.3.0". The CI doesn't interpret it, just tags with it.
+          version=$(cat "images/${{ matrix.image }}/VERSION" 2>/dev/null \
+            | head -n1 | tr -d '[:space:]' || true)
+
+          {
+            echo "tags<<EOF"
+            echo "${repo}:latest"
+            echo "${repo}:sha-${sha_short}"
+            if [ -n "$version" ]; then echo "${repo}:${version}"; fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-qemu-action@v3
 
@@ -96,7 +111,4 @@ jobs:
           context: images/${{ matrix.image }}
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ghcr.io/loadsmith-el/${{ matrix.image }}:latest
-            ghcr.io/loadsmith-el/${{ matrix.image }}:sha-${{ steps.vars.outputs.sha_short }}
-            ghcr.io/loadsmith-el/${{ matrix.image }}:${{ steps.vars.outputs.timestamp }}
+          tags: ${{ steps.vars.outputs.tags }}

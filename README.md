@@ -54,8 +54,15 @@ directory that changed (multi-arch, `linux/amd64` + `linux/arm64`) to GHCR:
 ```text
 ghcr.io/loadsmith-el/<name>:latest
 ghcr.io/loadsmith-el/<name>:sha-<shortsha>
-ghcr.io/loadsmith-el/<name>:<YYYYMMDD-HHmmss>
+ghcr.io/loadsmith-el/<name>:<version>
 ```
+
+The `<version>` tag is the free-text contents of the image's
+`images/<name>/VERSION` file — the image declares it, the CI doesn't interpret
+it. For service images it reflects the baked-in canonical dataset, e.g.
+`postgres-15` ships `data-v1` (matching the Dockerfile's `DATA_REF`). A
+different kind of image (e.g. the loadsmith engine, later) would ship its own
+scheme like `v0.3.0`.
 
 Only the images whose directory changed are rebuilt — unrelated images aren't
 republished. To force a rebuild of everything (e.g. after bumping the
