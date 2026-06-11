@@ -40,7 +40,10 @@ jobs:
       - name: Build matrix
         id: set-matrix
         run: |
-          if [ "${{ github.event_name == 'workflow_dispatch' && inputs.force_all }}" = "true" ]; then
+          force_all="${{ github.event_name == 'workflow_dispatch' && inputs.force_all }}"
+          if [ "$force_all" = "true" ] || ! git rev-parse HEAD^ >/dev/null 2>&1; then
+            # No parent commit (initial commit) means there's nothing to diff
+            # against — fall back to building every image, same as force_all.
             images=$(find images -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
           else
             images=$(echo "${{ steps.changed.outputs.all_changed_files }}" \
