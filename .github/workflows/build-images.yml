@@ -1,0 +1,99 @@
+name: Build & publish images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "images/**"
+      - ".github/workflows/build-images.yml"
+  pull_request:
+    paths:
+      - "images/**"
+      - ".github/workflows/build-images.yml"
+  workflow_dispatch:
+    inputs:
+      force_all:
+        description: "Rebuild every image regardless of what changed"
+        type: boolean
+        default: false
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      has_changes: ${{ steps.set-matrix.outputs.has_changes }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed image directories
+        if: github.event_name != 'workflow_dispatch' || inputs.force_all != true
+        id: changed
+        uses: tj-actions/changed-files@v45
+        with:
+          files: images/**
+          dir_names: true
+          dir_names_max_depth: 2
+
+      - name: Build matrix
+        id: set-matrix
+        run: |
+          if [ "${{ github.event_name == 'workflow_dispatch' && inputs.force_all }}" = "true" ]; then
+            images=$(find images -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
+          else
+            images=$(echo "${{ steps.changed.outputs.all_changed_files }}" \
+              | tr ' ' '\n' | sed 's|^images/||' | grep -v '^$' | sort -u)
+          fi
+
+          if [ -z "$images" ]; then
+            echo "matrix=[]" >> "$GITHUB_OUTPUT"
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            matrix=$(printf '%s\n' "$images" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    needs: detect
+    if: needs.detect.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        image: ${{ fromJson(needs.detect.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compute build vars
+        id: vars
+        run: |
+          echo "sha_short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "timestamp=$(date -u +%Y%m%d-%H%M%S)" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: images/${{ matrix.image }}
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ghcr.io/loadsmith-el/${{ matrix.image }}:latest
+            ghcr.io/loadsmith-el/${{ matrix.image }}:sha-${{ steps.vars.outputs.sha_short }}
+            ghcr.io/loadsmith-el/${{ matrix.image }}:${{ steps.vars.outputs.timestamp }}

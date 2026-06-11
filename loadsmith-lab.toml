@@ -1,0 +1,7 @@
+# loadsmith-lab images manifest — a minimal index of the service images this
+# origin offers. Names map to `images.<name>` -> images/<name>/, a Docker build
+# context (Dockerfile + init) that generates its seed CSV at build time. Add an
+# entry here when you add an image.
+
+[images]
+postgres-15 = "Postgres 15 with the canonical spacecraft_telemetry_events seed data baked in"
