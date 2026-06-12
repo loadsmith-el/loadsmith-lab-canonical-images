@@ -1,4 +1,4 @@
-# loadsmith-lab-images
+# loadsmith-lab-canonical-images
 
 The **`images` origin** for [loadsmith-lab](../loadsmith-lab): Docker build
 contexts for the service images its cases run against.
@@ -20,7 +20,7 @@ in `loadsmith-lab.toml` whenever you add an image.
 
 | Image | Description |
 |---|---|
-| `postgres-15` | Postgres 15 with the canonical `spacecraft_telemetry_events` seed data baked in |
+| `lab-postgres-15` | Postgres 15 with the canonical `spacecraft_telemetry_events` seed data baked in |
 
 ## How an image gets its seed data
 
@@ -64,7 +64,7 @@ The `<version>` tag is resolved per image, in precedence order:
    `v0.3.0`.
 2. **Else derived from the Dockerfile's `ARG DATA_REF`** — service images
    publish `:data-<ref>` reflecting the baked-in canonical dataset revision
-   (e.g. `postgres-15` → `:data-v1`). The dataset revision lives in
+   (e.g. `lab-postgres-15` → `:data-v1`). The dataset revision lives in
    `loadsmith-lab-canonical-data` (its `VERSION` file + git tag); `DATA_REF` is
    the single place this image pins it, so there's nothing to hand-maintain
    here. The image also carries it as an OCI label
@@ -88,11 +88,11 @@ Consumed by `loadsmith-lab` as an origin — register it once (local dev: read
 live, no install):
 
 ```bash
-loadsmith-lab origin local add images ../loadsmith-lab-images
-loadsmith-lab build --select images/postgres-15
+loadsmith-lab origin local add images ../loadsmith-lab-canonical-images
+loadsmith-lab build --select images/lab-postgres-15
 ```
 
-A case in [`loadsmith-lab-catalog`](../loadsmith-lab-catalog) references an
+A case in [`loadsmith-lab-canonical-catalog`](../loadsmith-lab-canonical-catalog) references an
 image as `image: images/<name>`; it's auto-built on first run.
 
 ## Adding a new image

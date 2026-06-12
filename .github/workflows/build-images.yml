@@ -47,7 +47,8 @@ jobs:
             images=$(find images -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
           else
             images=$(echo "${{ steps.changed.outputs.all_changed_files }}" \
-              | tr ' ' '\n' | sed 's|^images/||' | grep -v '^$' | sort -u)
+              | tr ' ' '\n' | sed 's|^images/||' | grep -v '^$' | sort -u \
+              | while read -r d; do [ -d "images/$d" ] && echo "$d"; done)
           fi
 
           if [ -z "$images" ]; then

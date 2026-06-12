@@ -28,7 +28,7 @@ guess at "why" — go read it.
   Only an image that versions on a *different* axis (e.g. the future engine
   image) ships an explicit `images/<name>/VERSION` file to override the
   derivation. Stamp the revision as `LABEL org.opencontainers.image.version` in
-  the Dockerfile (mirror `postgres-15`).
+  the Dockerfile (mirror `lab-postgres-15`).
 - **Multi-arch.** Loadsmith images are published for both `linux/amd64` and
   `linux/arm64` (AWS Graviton support). Base every image on something that
   publishes official `arm64` variants too (most do — `postgres`, `debian`,
@@ -41,7 +41,7 @@ guess at "why" — go read it.
   [`loadsmith-lab-canonical-data`](../loadsmith-lab-canonical-data) at a pinned
   `DATA_REF` and runs its `generate.py` (deterministic, stdlib-only), then
   `COPY --from=data ... events.csv` bakes the result into the final image.
-  Mirror `images/postgres-15/Dockerfile` exactly for the `data` stage.
+  Mirror `images/lab-postgres-15/Dockerfile` exactly for the `data` stage.
 - **Pin `DATA_REF` to a tag** for reproducible builds. `DATA_REPO`/`DATA_REF`
   are `ARG`s with sane defaults, overridable via `--build-arg` for local/offline
   builds.
@@ -83,7 +83,7 @@ origin):
 
 ```bash
 cd ../loadsmith-lab
-./target/debug/loadsmith-lab origin local add images ../loadsmith-lab-images   # once
+./target/debug/loadsmith-lab origin local add images ../loadsmith-lab-canonical-images   # once
 ./target/debug/loadsmith-lab build --select images/<name>
 docker rmi loadsmith-lab/images/<name>:local   # force a rebuild after Dockerfile/init changes
 ./target/debug/loadsmith-lab build --select images/<name>
