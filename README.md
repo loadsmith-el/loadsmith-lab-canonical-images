@@ -1,5 +1,7 @@
 # loadsmith-lab-canonical-images
 
+> 📖 **Full documentation:** <https://loadsmith-el.github.io/loadsmith-lab-canonical-images/>
+
 The **`images` origin** for [loadsmith-lab](../loadsmith-lab): Docker build
 contexts for the service images its cases run against.
 

@@ -1,1 +1,4 @@
 /output/
+
+# mdbook build output (generated from docs/src/)
+/docs/book/
