@@ -6,3 +6,4 @@
 [images]
 lab-postgres-15 = "Postgres 15 with the canonical spacecraft_telemetry_events seed data baked in"
 lab-mysql-8     = "MySQL 8 with the canonical spacecraft_telemetry_events seed data baked in"
+lab-oracle      = "Oracle Free (gvenzl) with the canonical seed data baked in + an stunnel TLS terminator for the connector's TCPS path"
