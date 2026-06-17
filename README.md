@@ -2,7 +2,7 @@
 
 > 📖 **Full documentation:** <https://loadsmith-el.github.io/loadsmith-lab-canonical-images/>
 
-The **`images` origin** for [loadsmith-lab](../loadsmith-lab): Docker build
+The **`images` origin** for [loadsmith-lab](https://github.com/loadsmith-el/loadsmith-lab): Docker build
 contexts for the service images its cases run against.
 
 ## Layout
@@ -28,7 +28,7 @@ in `loadsmith-lab.toml` whenever you add an image.
 ## How an image gets its seed data
 
 No CSV is committed in this repo. Each image's Dockerfile has a `data` build
-stage that clones [`loadsmith-lab-canonical-data`](../loadsmith-lab-canonical-data)
+stage that clones [`loadsmith-lab-canonical-data`](https://github.com/loadsmith-el/loadsmith-lab-canonical-data)
 at a pinned `DATA_REF` and runs its `generate.py` (deterministic, stdlib-only),
 then `COPY --from=data ... events.csv` bakes the result into the final image:
 
@@ -95,12 +95,12 @@ loadsmith-lab origin local add images ../loadsmith-lab-canonical-images
 loadsmith-lab build --select images/lab-postgres-15
 ```
 
-A case in [`loadsmith-lab-canonical-catalog`](../loadsmith-lab-canonical-catalog) references an
+A case in [`loadsmith-lab-canonical-catalog`](https://github.com/loadsmith-el/loadsmith-lab-canonical-catalog) references an
 image as `image: images/<name>`; it's auto-built on first run.
 
 ## Adding a new image
 
-See [Adding Service Images](../loadsmith-lab/docs/src/writing-cases/adding-service-images.md)
+See [Adding Service Images](https://github.com/loadsmith-el/loadsmith-lab/blob/main/docs/src/writing-cases/adding-service-images.md)
 and the `/create-source-image` Claude Code command in `../loadsmith-lab/.claude/commands/`.
 
 ## License
