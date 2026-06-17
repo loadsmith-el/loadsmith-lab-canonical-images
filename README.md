@@ -23,6 +23,7 @@ in `loadsmith-lab.toml` whenever you add an image.
 | Image | Description |
 |---|---|
 | `lab-postgres-15` | Postgres 15 with the canonical `spacecraft_telemetry_events` seed data baked in |
+| `lab-mysql-8` | MySQL 8 with the canonical `spacecraft_telemetry_events` seed data baked in (users `lab` / `caching_sha2_password` + `lab_native` / `mysql_native_password` cover both connector auth paths) |
 
 ## How an image gets its seed data
 

@@ -1,0 +1,5 @@
+[mysqld]
+# Re-enable the legacy auth plugin (disabled by default on 8.4) so the lab can
+# also exercise the connector's mysql_native_password path. `loose-` keeps it a
+# warning, not fatal, on versions where the toggle doesn't exist (e.g. 8.0).
+loose-mysql_native_password=ON
