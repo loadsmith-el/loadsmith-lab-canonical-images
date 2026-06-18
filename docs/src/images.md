@@ -4,6 +4,7 @@
 |---|---|
 | `lab-postgres-15` | Postgres 15 with the canonical `spacecraft_telemetry_events` seed data baked in |
 | `lab-mysql-8` | MySQL 8 with the canonical `spacecraft_telemetry_events` seed data baked in. User `lab` uses `caching_sha2_password` (the default, and the only plugin in MySQL 9); `lab_native` uses the legacy `mysql_native_password` (MySQL 5.x) — so both connector auth paths are covered. Includes an empty `events_sink` table for destination cases. |
+| `lab-mock-graph` | A mock Microsoft Graph HTTP endpoint (stdlib Python) for the `sharepoint` connector. Serves the canonical CSV both as a file download (`/content`) and as paginated SharePoint List items (`@odata.nextLink`), plus a fake OAuth token — so the connector runs end-to-end with no real tenant. Not a real Graph: only the routes the connector uses. |
 
 `lab-postgres-15` is the reference image and the template for any new one. It:
 
