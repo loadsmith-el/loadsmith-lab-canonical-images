@@ -3,10 +3,11 @@
 #
 # These certs are committed ON PURPOSE (see ../README.md § TLS). They are a
 # self-signed CA + a leaf server cert for the in-image stunnel terminator. The
-# Oracle (ODPI-C) client verifies the server against a wallet built from this CA,
-# so the CA must be known at case-authoring time — hence committed, not generated
-# at build. We need a real CA → leaf chain: the leaf carries CA:FALSE + serverAuth
-# EKU + SANs for the service alias.
+# Oracle connector verifies the server against this CA (shipped to the cases as a
+# PEM `ewallet.pem`; see catalog/oracle-to-jsonl-tls), so the CA must be known at
+# case-authoring time — hence committed, not generated at build. We need a real
+# CA → leaf chain: the leaf carries CA:FALSE + serverAuth EKU + SANs for the
+# service alias.
 set -euo pipefail
 
 # 1. self-signed CA (this is what clients pin via tls.root_cert)
@@ -29,8 +30,8 @@ openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
 # stunnel wants the cert + key concatenated in one PEM. The CA goes in too:
 # Oracle's NZ TLS layer validates only against the chain the SERVER presents — it
 # will NOT build the path from a CA it merely holds in its wallet (unlike
-# openssl/rustls). So stunnel must serve the full leaf → CA chain, or the ODPI-C
-# client fails with ORA-29024 (certificate validation failure).
+# openssl/rustls). So stunnel serves the full leaf → CA chain; the old ODPI-C
+# client failed with ORA-29024 (certificate validation failure).
 cat server.crt ca.crt server.key > server.pem
 chmod 644 server.pem ca.crt
 
