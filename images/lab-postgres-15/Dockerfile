@@ -41,6 +41,7 @@ COPY init.sql   /docker-entrypoint-initdb.d/01_init.sql
 
 # Conditionally enables SSL when LOADSMITH_ENABLE_SSL=on. No-op otherwise.
 COPY 02_ssl.sh  /docker-entrypoint-initdb.d/02_ssl.sh
+COPY 03_type_coverage.sql /docker-entrypoint-initdb.d/03_type_coverage.sql
 RUN chmod 755   /docker-entrypoint-initdb.d/02_ssl.sh
 
 ENV POSTGRES_DB=lab

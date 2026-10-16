@@ -22,7 +22,7 @@ in `loadsmith-lab.toml` whenever you add an image.
 
 | Image | Description |
 |---|---|
-| `lab-postgres-15` | Postgres 15 with the canonical `spacecraft_telemetry_events` seed data baked in |
+| `lab-postgres-15` | Postgres 15 with the canonical `spacecraft_telemetry_events` seed data baked in, plus a hand-written `type_coverage` fixture (+ `type_coverage_sink`) covering timestamptz, BC dates, NaN/Infinity, arrays and NULLs |
 | `lab-mysql-8` | MySQL 8 with the canonical `spacecraft_telemetry_events` seed data baked in (users `lab` / `caching_sha2_password` + `lab_native` / `mysql_native_password` cover both connector auth paths) |
 | `lab-mock-graph` | A mock Microsoft Graph HTTP endpoint (stdlib Python) for the `sharepoint` connector — serves the canonical CSV as a file download and as paginated List items; no real tenant needed |
 
